@@ -1,0 +1,29 @@
+#Instruction | Format  | Function |ParamNum
+add|rd,rs,rt|100000|3
+addu|rd,rs,rt|100001|3
+and|rd,rs,rt|100100|3
+break| |001101|0
+div|rs,rt|011010|2
+divu|rs,rt|011011|2
+jalr|rd,rs|001001|2
+jr|rs|001000|1
+mfhi|rd|010000|1
+mflo|rd|010010|1
+mthi|rs|010001|1
+mtlo|rs|010011|1
+mult|rs,rt|011000|2
+multu|rs,rt|011001|2
+nor|rd,rs,rt|100111|3
+or|rd,rs,rt|100101|3
+sll|rd,rt,sa|000000|3
+sllv|rd,rt,rs|000100|3
+slt|rd,rs,rt|101010|3
+sltu|rd,rs,rt|101011|3
+sra|rd,rt,sa|000011|3
+srav|rd,rt,rs|000111|3
+srl|rd,rt,sa|000010|3
+srlv|rd,rt,rs|000110|3
+sub|rd,rs,rt|100010|3
+subu|rd,rs,rt|100011|3
+syscall| |001100|0
+xor|rd,rs,rt|100110|3

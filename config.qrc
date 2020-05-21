@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="/config">
+        <file>Config/Registers_0.txt</file>
+        <file>Config/Instructions_R.txt</file>
+        <file>Config/Instructions_C.txt</file>
+        <file>Config/Instructions_I.txt</file>
+        <file>Config/Instructions_J.txt</file>
+        <file>Config/style/dark.qss</file>
+        <file>Config/style/light.qss</file>
+        <file>Config/Instructions_Pseudo.txt</file>
+        <file>Config/Operators.txt</file>
+        <file>Config/VariableTypes.txt</file>
+    </qresource>
+</RCC>

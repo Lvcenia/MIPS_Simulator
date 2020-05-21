@@ -1,0 +1,22 @@
+#Instruction | Format |ParamNum | RealInstructions
+push|%1,%2...%n|0|addi $sp,$sp,-n*2_sw %i,2*i($sp)
+pop|%1,%2...%n|1|addi $sp,$sp,n*2_lw %i,2*i($sp)
+move|%1,%2|2|or %1,%2,$zero
+shi|%1,%2(%3)|3|addi $at,$zero,%1_sh $at,%2(%3)
+inc|%1|1|addi %1,%1,1
+dec|%1|1|addi %1,%1,-1
+not|%1,%2|2|nor %1,%2,%2
+neg|%1,%2|2|sub %1,$zero,%2
+abs|%1,%2|2|sra $at,%2,31_xor %1,%2,$at_sub %1,%1,$at
+swap|%1,%2|2|xor %1,%1,%2_xor %2,%1,%2_xor %1,%1,%2
+b|%1|1|beq $zero,$zero,%1
+beqz|%1,%2|2|beq %1,$zero,%2
+bnez|%1,%2|2|bne %1,$zero,%2
+beqi|%1,%2,%3|3|addi $at,$zero,%2_beq $at,%1,%3
+bnei|%1,%2,%3|3|addi $at,$zero,%2_bne $at,%1,%3
+blt|%1,%2,%3|3|slt $at,%1,%2_bne $at,$zero,%3
+ble|%1,%2,%3|3|slt $at,%2,%1_beq $at,$zero,%3
+bgt|%1,%2,%3|3|slt $at,%2,%1_bne $at,$zero,%3
+bge|%1,%2,%3|3|slt $at,%1,%2_beq $at,$zero,%3
+seq|%1,%2,%3|3|sub %1,%2,%3_sltiu %1,%2,1
+sne|%1,%2,%3|3|sub %1,%2,%3_sltu %1,$zero,1
