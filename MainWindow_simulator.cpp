@@ -9,6 +9,8 @@ MainWindow::MainWindow(QWidget *parent) :
     setWindowIcon(QIcon("://style/MIPS_icon.png"));
     setTheme();
     this->assemblerWidget = new AssemblerWidget(this);
+    this->displayWidget = new DisplayWidget(this);
+    displayWidget->hide();
     this->assembler = assemblerWidget->GetAssembler();
 
     ui->textEditInstrs->hide();
@@ -66,6 +68,11 @@ MainWindow::MainWindow(QWidget *parent) :
         }
     });
 
+    connect(ui->actionOpenDisplay,&QAction::triggered,[=](){
+       displayWidget->show();
+    });
+
+
 
     connect(ui->textEditInstrs,&QTextEdit::textChanged,[=](){
         //this->currentInstrs = ui->textEditInstrs->toPlainText();
@@ -83,12 +90,19 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this->MIPS_VirtualMachine->CPU,&vmCPU::currentInstrChanged,this,&MainWindow::OnCurrentInstrLineChanged);
 
     connect(this->MIPS_VirtualMachine->CPU,&vmCPU::ProcessStarted,[=](){
+        ui->textEditOUT->clear();
+        ui->textEditOUT->append("Process Started");
         qDebug()<<"started";
         this->setMIPSRunningTheme();
     });
     connect(this->MIPS_VirtualMachine->CPU,&vmCPU::ProcessEnded,[=](){
+        ui->textEditOUT->append("Process Ended");
         qDebug()<<"ended";
         this->setTheme();
+    });
+
+    connect(this->MIPS_VirtualMachine->CPU,&vmCPU::sysCallResultGot,[=](const QString& text){
+       ui->textEditOUT->append(text);
     });
 
 }
@@ -160,15 +174,30 @@ void MainWindow::OnCurrentInstrLineChanged(int line)
 
 void MainWindow::setTheme()
 {
+    qApp->setStyle(QStyleFactory::create("Fusion"));
+        QPalette palette;
+        palette.setColor(QPalette::Window, QColor(53,53,53));
+        palette.setColor(QPalette::WindowText, Qt::white);
+        palette.setColor(QPalette::Base, QColor(15,15,15));
+        palette.setColor(QPalette::AlternateBase, QColor(53,53,53));
+        palette.setColor(QPalette::ToolTipBase, Qt::white);
+        palette.setColor(QPalette::ToolTipText, Qt::white);
+        palette.setColor(QPalette::Text, Qt::white);
+        palette.setColor(QPalette::Button, QColor(53,53,53));
+        palette.setColor(QPalette::ButtonText, Qt::white);
+        palette.setColor(QPalette::BrightText, Qt::red);
+        palette.setColor(QPalette::Highlight, QColor(68,45,236).lighter());
+        palette.setColor(QPalette::HighlightedText, Qt::black);
+        qApp->setPalette(palette);
 
-        QFile styleSheet(":/config/Config/style/dark.qss");
-        if (styleSheet.open(QIODevice::ReadOnly | QIODevice::Text))
-        {
-            QTextStream aStream(&styleSheet); //用文本流读取文件
-            this->setStyleSheet(aStream.readAll());
-            styleSheet.close();//关闭文件
-        }
-        ui->statusBar->setStyleSheet("QStatusBar{background-color:rgb(64,66,68);}");
+//        QFile styleSheet(":/config/Config/style/dark.qss");
+//        if (styleSheet.open(QIODevice::ReadOnly | QIODevice::Text))
+//        {
+//            QTextStream aStream(&styleSheet); //用文本流读取文件
+//            this->setStyleSheet(aStream.readAll());
+//            styleSheet.close();//关闭文件
+//        }
+//        ui->statusBar->setStyleSheet("QStatusBar{background-color:rgb(64,66,68);}");
 }
 
 void MainWindow::setMIPSRunningTheme()

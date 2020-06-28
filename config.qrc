@@ -11,4 +11,5 @@
         <file>Config/Operators.txt</file>
         <file>Config/VariableTypes.txt</file>
     </qresource>
+    <qresource prefix="/charLib"/>
 </RCC>

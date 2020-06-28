@@ -112,7 +112,7 @@ void AssemblerWidget::on_actionExport_Triggered()
 
 }
 
-void AssemblerWidget::on_actionOpenData_Triggered()
+void AssemblerWidget::on_actionOpenData_Triggered(bool isBigHead)
 {
     inputBinText.clear();
     QString curPath= QDir::currentPath();
@@ -130,14 +130,36 @@ void AssemblerWidget::on_actionOpenData_Triggered()
 
     ui->textEdit_DA_IN->clear();//清空
     quint32 num;
+    quint8 bytes[4];
     int add = 0;
-    while (!file->atEnd())
+    if(isBigHead)
     {
-     aStream >> num;
-     this->vmInstance->Memory->SetWord(add,num);
-     inputBinText += QString("%1").arg(num,32,2,QChar('0'));
-     add+=2;
+        while (!file->atEnd())
+        {
+         aStream >> num;
+         this->vmInstance->Memory->SetWord(add,num);
+         inputBinText += QString("%1").arg(num,32,2,QChar('0'));
+         add+=2;
+        }
     }
+    else
+    {
+        while (!file->atEnd())
+        {
+            //正着读 倒着算 例如 读出的byteArr是20 48 4b 01 重组出01 4b 48 20
+            for(int i = 0; i < 4; i++)
+            {
+                aStream >> bytes[i];
+                qDebug()<<bytes[i];
+            }
+            num = bytes[3]<<24 | bytes[2]<<16 | bytes[1]<<8 | bytes[0];
+
+         this->vmInstance->Memory->SetWord(add,num);
+         inputBinText += QString("%1").arg(num,32,2,QChar('0'));
+         add+=2;
+        }
+    }
+
 
     this->setWindowTitle(fileName);
     file->close();//关闭文件

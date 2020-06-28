@@ -11,6 +11,8 @@ vmCPU::vmCPU(QObject *parent) : QObject(parent)
 
 void vmCPU::ExecInstruction(const QString &Instr)
 {
+    if(Instr.trimmed().isEmpty())
+        return;
     QStringList SlicedInstr = Instr.trimmed().split(" ");
     SlicedInstr[0] = SlicedInstr.at(0).toUpper();
     QStringList params = SlicedInstr[1].split(QRegExp("[,()]"),QString::SplitBehavior::SkipEmptyParts);

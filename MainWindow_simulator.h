@@ -9,6 +9,8 @@
 #include <QIcon>
 #include <QStandardItemModel>
 #include "mips_vm.h"
+#include "displaywidget.h"
+#include "QStyleFactory"
 
 namespace Ui {
 class Assembler;
@@ -36,6 +38,7 @@ private:
     void setMIPSRunningTheme();
     QString currentInstrs;
     AssemblerWidget* assemblerWidget;
+    DisplayWidget* displayWidget;
     N_Assembler* assembler;
     QStandardItemModel *RegsTableModel;
     QStandardItemModel *MemoryTableModel;

@@ -46,7 +46,7 @@ public slots:
     void on_actionOpen_Triggered();
     void on_actionSave_Triggered();
     void on_actionExport_Triggered();
-    void on_actionOpenData_Triggered();
+    void on_actionOpenData_Triggered(bool isBigHead=false);
     
 private:
     MIPS_VM* vmInstance;

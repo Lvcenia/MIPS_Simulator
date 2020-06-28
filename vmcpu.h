@@ -77,6 +77,36 @@ private:
     vmMemory *mem = nullptr;
     void SysCallProcess(int code);
 
+    template<typename T>
+    void SystemPrint(T value)
+    {
+        QString res;
+        if(typeid (value) == typeid (int))
+        {
+            res = QString::number(value);
+        }
+        else if (typeid (value) == typeid (float))
+        {
+            res = QString::number(value);
+        }
+        else if (typeid (value) == typeid (double))
+        {
+            res = QString::number(value);
+        }
+        else if (typeid (value) == typeid (QString))
+        {
+            res = value;
+        }
+        else if (typeid (value) == typeid (QChar))
+        {
+            res = value;
+        }
+        else return;
+        emit sysCallResultGot(res);
+
+
+    }
+
 
 
 

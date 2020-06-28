@@ -24,6 +24,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += \
+    displaywidget.cpp \
         main.cpp \
     assemblerwidget.cpp \
     Instruction_Base.cpp \
@@ -31,24 +32,31 @@ SOURCES += \
     mips_vm.cpp \
     n_assembler.cpp \
     n_deassembler.cpp \
+    vmDisk.cpp \
+    vmGPU.cpp \
     vmcpu.cpp \
     vmmemory.cpp
 
 
 HEADERS += \
+    CharData.h \
     assemblerwidget.h \
     Instruction_Base.h \
     MainWindow_simulator.h \
+    displaywidget.h \
     mips_vm.h \
     n_assembler.h \
     n_deassembler.h \
+    vmDisk.h \
+    vmGPU.h \
     vmcpu.h \
     vmmemory.h
 
 
 FORMS += \
         assemblerwidget.ui \
-    MIPS_simulator.ui
+    MIPS_simulator.ui \
+    displaywidget.ui
 
 RESOURCES += \
         config.qrc
