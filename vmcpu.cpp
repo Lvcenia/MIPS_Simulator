@@ -434,11 +434,12 @@ void vmCPU::SysCallProcess(int code)
         while(1)
         {
             uint16_t zjie = this->mem->GetValue(add);
+            if(zjie)
             char b1,b2;
 
             add++;
         }
-        SystemPrint<QString>(str.fromLocal8Bit());
+        //SystemPrint<QString>(str.fromLocal8Bit());
     }
 
         break;

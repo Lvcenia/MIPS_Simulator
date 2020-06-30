@@ -161,7 +161,6 @@ QString N_Assembler::instrProcess(const QString &line,AssemblyResult* result)
             {
                 QStringList formatParams = format[1].split(QRegExp("[,()]"),QString::SplitBehavior::SkipEmptyParts);
                 QString realMachineCode = format[3].replace("_","\n");
-                QString result;
                 if(name == "push" || name == "pop") //push pop参数不固定 特别处理
                {
                     int n = Realparams.count();
@@ -195,7 +194,7 @@ QString N_Assembler::instrProcess(const QString &line,AssemblyResult* result)
                     }
                     else{
                         bool flag;
-                        bool immediate = getExpValue(Realparams[0], &flag);
+                        bool immediate = getExpValue(Realparams[1], &flag);
                         if(!flag){
                             return "Err_InvalidExpr";
                         }
@@ -203,7 +202,7 @@ QString N_Assembler::instrProcess(const QString &line,AssemblyResult* result)
                             assemblyResult = realMachineCode.replace("HIGH" , QString::number(((unsigned int)immediate) >> 16)).replace("LOW" , QString::number(immediate & 0xffff));
                         }
                         else{
-                            assemblyResult = "addi $at,$zero,"+QString::number(immediate);
+                            assemblyResult = "addi "+Realparams[0]+",$zero,"+QString::number(immediate);
                         }
                     }
                 }
@@ -856,8 +855,10 @@ int N_Assembler::getExpValue(const QString &expr,bool* ok)
 
     else
     {
-        QStringList elements = expr.split("()+-/*");
+
+        QStringList elements = expr.split(QRegExp("[+\-*/()]"));
         int cnt = elements.count();
+        //return *ok=true,cnt;
         for(int i = 0; i < cnt; ++i){
             if(!isNumString(elements[i]))
             if(LabelTable.contains(elements[i])){
@@ -869,7 +870,7 @@ int N_Assembler::getExpValue(const QString &expr,bool* ok)
         }
         QStack<QString> numberstack;
         QStack<QChar> symbolstack;
-        int nowptr = 0, ans = 0;
+        int nowptr = 0;
         for(int i = 0; i < expr.length(); ++i){
             if(expr[i] != '(' && expr[i] != ')' && expr[i] !='+' && expr[i] != '-' && expr[i] != '*' && expr[i] != '/'){
                 if(symbolstack.isEmpty() || symbolstack.top() == '('){
@@ -931,18 +932,29 @@ int N_Assembler::getExpValue(const QString &expr,bool* ok)
                     numberstack.pop();
                     int b = getNumStringValue(numberstack.top());
                     numberstack.push(QString::number(ch == '+' ? a + b : b - a));
+                    symbolstack.push(expr[i]);
                 }
                 else {
                     symbolstack.push(expr[i]);
-
                 }
             }
             if(expr[i] == '*' || expr[i] == '/' || expr[i] == '('){
                 symbolstack.push(expr[i]);
             }
         }
-        (*ok) = true;
-        return ans;
+
+        if (numberstack.size() == 1)return *ok=true, getNumStringValue(numberstack.top());
+        else{
+            if (symbolstack.size() == 1){
+                QChar ch = symbolstack.top();
+                int a=getNumStringValue(numberstack.top());
+                numberstack.pop();
+                int b=getNumStringValue(numberstack.top());
+                numberstack.pop();
+                return *ok = true, ch == '+' ? a + b : 0;
+            }
+        }
+
     }
 
 

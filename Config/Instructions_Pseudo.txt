@@ -21,4 +21,4 @@ bge|%1,%2,%3|3|slt $at,%1,%2_beq $at,$zero,%3
 seq|%1,%2,%3|3|sub %1,%2,%3_sltiu %1,%2,1
 sne|%1,%2,%3|3|sub %1,%2,%3_sltu %1,$zero,1
 li|%1,%2|2|lui %1,HIGH_ori %1,LOW
-la|%1|1|lui $at,HIGH_ori $at,LOW
+la|%1,%2|2|lui %1,HIGH_ori %1,LOW
