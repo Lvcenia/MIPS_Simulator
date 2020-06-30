@@ -27,7 +27,14 @@
     <property name="title">
      <string>设置</string>
     </property>
-    <addaction name="actionCollabInput"/>
+    <widget class="QMenu" name="menuInstrMode">
+     <property name="title">
+      <string>输入指令格式</string>
+     </property>
+     <addaction name="actionZPC"/>
+     <addaction name="actionStandard_MIPS"/>
+    </widget>
+    <addaction name="menuInstrMode"/>
    </widget>
    <widget class="QMenu" name="menu_2">
     <property name="title">
@@ -59,7 +66,6 @@
    <addaction name="actionOpenAssembler"/>
    <addaction name="actionSysExec"/>
    <addaction name="actionStepInto"/>
-   <addaction name="actionCollabInput"/>
    <addaction name="actionOpenDisplay"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
@@ -78,13 +84,6 @@
      <item>
       <widget class="QWidget" name="widget_2" native="true">
        <layout class="QVBoxLayout" name="verticalLayout_2">
-        <item>
-         <widget class="QLabel" name="label">
-          <property name="text">
-           <string>寄存器</string>
-          </property>
-         </widget>
-        </item>
         <item>
          <widget class="QTableView" name="tableViewRegs"/>
         </item>
@@ -121,13 +120,6 @@
         <property name="bottomMargin">
          <number>0</number>
         </property>
-        <item>
-         <widget class="QLabel" name="label_4">
-          <property name="text">
-           <string>输出</string>
-          </property>
-         </widget>
-        </item>
         <item>
          <widget class="QTextEdit" name="textEditOUT">
           <property name="readOnly">
@@ -172,13 +164,6 @@
          <number>0</number>
         </property>
         <item>
-         <widget class="QLabel" name="label_3">
-          <property name="text">
-           <string>指令</string>
-          </property>
-         </widget>
-        </item>
-        <item>
          <widget class="QTextEdit" name="textEditInstrs">
           <property name="placeholderText">
            <string>这里显示将要被执行的指令（反汇编）</string>
@@ -188,6 +173,13 @@
         <item>
          <widget class="QTableView" name="tableViewInstrs"/>
         </item>
+        <item>
+         <widget class="QLabel" name="labelPC">
+          <property name="text">
+           <string>TextLabel</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </widget>
      </item>
@@ -195,11 +187,23 @@
    </widget>
   </widget>
   <widget class="QDockWidget" name="dockWidget_2">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>640</width>
+     <height>192</height>
+    </size>
+   </property>
    <property name="features">
     <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
    </property>
    <property name="windowTitle">
-    <string>内存</string>
+    <string>内存 (以Zjie为寻址单位)</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>1</number>
@@ -210,22 +214,37 @@
       <widget class="QWidget" name="widget" native="true">
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
-         <widget class="QLabel" name="label_2">
-          <property name="text">
-           <string>内存</string>
+         <widget class="QTabWidget" name="tabWidget">
+          <property name="currentIndex">
+           <number>0</number>
           </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QTableView" name="tableViewMemory">
-          <property name="editTriggers">
-           <set>QAbstractItemView::NoEditTriggers</set>
-          </property>
+          <widget class="QWidget" name="tab">
+           <attribute name="title">
+            <string>代码段</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout">
+            <item>
+             <widget class="QTableView" name="tableViewMemory_Text">
+              <property name="editTriggers">
+               <set>QAbstractItemView::NoEditTriggers</set>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="tab_2">
+           <attribute name="title">
+            <string>数据段</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_10">
+            <item>
+             <widget class="QTableView" name="tableViewMemory_Data"/>
+            </item>
+           </layout>
+          </widget>
          </widget>
         </item>
        </layout>
-       <zorder>tableViewMemory</zorder>
-       <zorder>label_2</zorder>
       </widget>
      </item>
     </layout>
@@ -271,6 +290,25 @@
   <action name="actionOpenDisplay">
    <property name="text">
     <string>打开显示器</string>
+   </property>
+  </action>
+  <action name="actionZPC">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>ZPC (Zjie 寻址)</string>
+   </property>
+  </action>
+  <action name="actionStandard_MIPS">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>标准MIPS (Byte 寻址)</string>
    </property>
   </action>
  </widget>

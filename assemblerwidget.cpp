@@ -132,14 +132,46 @@ void AssemblerWidget::on_actionOpenData_Triggered(bool isBigHead)
     quint32 num;
     quint8 bytes[4];
     int add = 0;
+    int cnt = 0;
+    int consecZeroes = 0;
+    quint32 temp1,temp2;
+    QList<quint32> dataSeg;
+    QList<quint32> textSeg;
+    bool isText = false;
     if(isBigHead)
     {
         while (!file->atEnd())
         {
          aStream >> num;
-         this->vmInstance->Memory->SetWord(add,num);
-         inputBinText += QString("%1").arg(num,32,2,QChar('0'));
+         if(!isText)
+         {
+             dataSeg.push_back(num);
+             this->vmInstance->Memory->SetWord(add,num);
+         }
+
+         if(num == 0x00000000)
+         {
+             if(!isText)
+             {
+                 if(cnt >2)
+                 {
+                     if(dataSeg[cnt-1] == dataSeg[cnt-2] == 0x00000000)
+                     {
+                        isText = true;
+                        add = 0;
+                     }
+                 }
+
+             }
+         }
+         if(isText)
+         {
+             textSeg.push_back(num);
+             this->vmInstance->Memory->SetInstr(add,num);
+             inputBinText += QString("%1").arg(num,32,2,QChar('0'));
+         }
          add+=2;
+         cnt++;
         }
     }
     else
@@ -150,13 +182,43 @@ void AssemblerWidget::on_actionOpenData_Triggered(bool isBigHead)
             for(int i = 0; i < 4; i++)
             {
                 aStream >> bytes[i];
-                qDebug()<<bytes[i];
+                //qDebug()<<bytes[i];
             }
             num = bytes[3]<<24 | bytes[2]<<16 | bytes[1]<<8 | bytes[0];
+            if(!isText)
+            {
+                dataSeg.push_back(num);
+                //qDebug()<<dataSeg;
+                this->vmInstance->Memory->SetWord(add,num);
+            }
 
-         this->vmInstance->Memory->SetWord(add,num);
-         inputBinText += QString("%1").arg(num,32,2,QChar('0'));
+            if(num == 0x00000000)
+            {
+                if(!isText)
+                {
+                    if(cnt >2)
+                    {
+                        if(dataSeg[cnt-1] == dataSeg[cnt-2] == 0x00000000)
+                        {
+                           isText = true;
+                           add = 0;
+                        }
+                    }
+
+                }
+            }
+            qDebug()<<tr("%1").arg(num,8,16,QChar('0'));
+
+            if(isText)
+            {
+                if(num == 0x00000000)
+                    continue;
+                textSeg.push_back(num);
+                this->vmInstance->Memory->SetInstr(add,num);
+                inputBinText += QString("%1").arg(num,32,2,QChar('0'));
+            }
          add+=2;
+         cnt++;
         }
     }
 

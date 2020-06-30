@@ -605,13 +605,27 @@ QString N_Assembler::RTypeDeassemble(const QString &input)
     QString rt = input.mid(11,5);
     QString rd = input.mid(16,5);
     QString res = "";
+    QString name = this->InstrOpcodes["0_" + func];
+    QStringList instrInfo = this->RTypeInstrs[name].split("|");
+    QStringList paramList = instrInfo[1].split(",");
+
     res += this->InstrOpcodes["0_" + func];
     res += " ";
-    res += this->RegBinToName[rd];
-    res += ",";
-    res += this->RegBinToName[rs];
-    res += ",";
-    res += this->RegBinToName[rt];
+    if(paramList.contains("rd"))
+    {
+        res += this->RegBinToName[rd];
+        res += ",";
+    }
+    if(paramList.contains("rs"))
+    {
+        res += this->RegBinToName[rs];
+        res += ",";
+    }
+    if(paramList.contains("rt"))
+    {
+
+        res += this->RegBinToName[rt];
+    }
     return res;
 
 }
@@ -634,20 +648,30 @@ QString N_Assembler::ITypeDeassemble(const QString &input)
         res += " ";
         res += this->RegBinToName[rt];
         res += ",";
-        res += QString::number(dat.toInt(nullptr,2));
+        res += QString("0x%1").arg(dat.toInt(nullptr,2),8,16,QChar('0'));
         res += "(";
         res += this->RegBinToName[rs];
         res += ")";
     }
     else
     {
-        res += this->InstrOpcodes[opcode];
+        QString name = this->InstrOpcodes[opcode];
+        QStringList instrInfo = this->ITypeInstrs[name].split("|");
+        QStringList paramList = instrInfo[1].split(",");
+
+        res += name;
         res += " ";
-        res += this->RegBinToName[rt];
-        res += ",";
-        res += this->RegBinToName[rs];
-        res += ",";
-        res += QString::number(dat.toInt(nullptr,2));
+        if(paramList.contains("rt"))
+        {
+            res += this->RegBinToName[rt];
+            res += ",";
+        }
+        if(paramList.contains("rs"))
+        {
+            res += this->RegBinToName[rs];
+            res += ",";
+        }
+        res += QString("0x%1").arg(dat.toInt(nullptr,2),8,16,QChar('0'));
     }
 
     return res;
@@ -662,7 +686,7 @@ QString N_Assembler::JTypeDeassemble(const QString &input)
     QString res = "";
     res += this->InstrOpcodes[opcode];
     res += " ";
-    res += QString::number(target.toInt(nullptr,2));
+    res += QString("0x%1").arg(target.toInt(nullptr,2),8,16,QChar('0'));
 
     return res;
 
@@ -690,6 +714,26 @@ QString N_Assembler::Deassemble(QStringList inputBinLines)
         }
         else if (opcode.mid(0,4) == "0100")//C类型
         {
+
+        }
+        else if(opcode == "011100")//mul
+        {
+            QString func = i.mid(26,6);
+            QString rs = i.mid(6,5);
+            QString rt = i.mid(11,5);
+            QString rd = i.mid(16,5);
+            QString result = "";
+            QString name = "mul";
+
+            result += name;
+            result += " ";
+            result += this->RegBinToName[rd];
+            result += ",";
+            result += this->RegBinToName[rs];
+            result += ",";
+            result += this->RegBinToName[rt];
+            i = result;
+            res += i;
 
         }
         else //I类型
