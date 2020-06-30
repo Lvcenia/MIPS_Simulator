@@ -179,7 +179,33 @@ QString N_Assembler::instrProcess(const QString &line,AssemblyResult* result)
                }
                 else if(name == "li" || name == "la")
                 {
+                    if(name=="li"){
+                        bool flag;
+                        int immediate = getExpValue(Realparams[1], &flag);
+                        if(!flag){
+                            return "Err_InvalidExpr";
+                        }
+                        if(immediate < -32768 || immediate > 32767){
+                            assemblyResult = realMachineCode.replace("HIGH" , QString::number(((unsigned int)immediate) >> 16)).replace("LOW" , QString::number(immediate & 0xffff));
+                        }
+                        else{
+                            assemblyResult = "addi "+Realparams[0]+",$zero,"+QString::number(immediate);
+                        }
 
+                    }
+                    else{
+                        bool flag;
+                        bool immediate = getExpValue(Realparams[0], &flag);
+                        if(!flag){
+                            return "Err_InvalidExpr";
+                        }
+                        if(immediate < -32768 || immediate > 32767){
+                            assemblyResult = realMachineCode.replace("HIGH" , QString::number(((unsigned int)immediate) >> 16)).replace("LOW" , QString::number(immediate & 0xffff));
+                        }
+                        else{
+                            assemblyResult = "addi $at,$zero,"+QString::number(immediate);
+                        }
+                    }
                 }
 
                else//其他固定参数的伪指令
@@ -786,8 +812,93 @@ int N_Assembler::getExpValue(const QString &expr,bool* ok)
 
     else
     {
-        (*ok) = false;
-            return 0;
+        QStringList elements = expr.split("()+-/*");
+        int cnt = elements.count();
+        for(int i = 0; i < cnt; ++i){
+            if(!isNumString(elements[i]))
+            if(LabelTable.contains(elements[i])){
+                elements[i] = LabelTable[elements[i]];
+            }
+            else {
+                return *ok=false, 0;
+            }
+        }
+        QStack<QString> numberstack;
+        QStack<QChar> symbolstack;
+        int nowptr = 0, ans = 0;
+        for(int i = 0; i < expr.length(); ++i){
+            if(expr[i] != '(' && expr[i] != ')' && expr[i] !='+' && expr[i] != '-' && expr[i] != '*' && expr[i] != '/'){
+                if(symbolstack.isEmpty() || symbolstack.top() == '('){
+                    numberstack.push(elements[nowptr]);
+                    nowptr++;
+                }
+                else{
+                    if(symbolstack.top() == '*' || symbolstack.top() == '/'){
+                        QChar ch=symbolstack.top();
+                        symbolstack.pop();
+                        int a = getNumStringValue(numberstack.top()), b = getNumStringValue(elements[nowptr]);
+                        numberstack.pop();
+                        if(ch == '/' && b == 0)return *ok = false, 0;
+                        numberstack.push(QString::number(ch == '*' ? a * b : a / b));
+                        nowptr++;
+                    }
+                    else{
+                        numberstack.push(elements[nowptr]);
+                        nowptr++;
+                    }
+                }
+                for(; i<expr.length() && expr[i] != '(' && expr[i] != ')' && expr[i] !='+' && expr[i] != '-' && expr[i] != '*' && expr[i] != '/'; ++i);
+
+            }
+            if(i == expr.length())break;
+            if(expr[i] == ')'){
+                if(symbolstack.empty())return *ok = false, 0;
+                if(symbolstack.top() != '('){
+                    QChar ch = symbolstack.top();
+                    symbolstack.pop();
+                    if(numberstack.size() < 2)return *ok=false, 0;
+                    int a = getNumStringValue(numberstack.top());
+                    numberstack.pop();
+                    int b = getNumStringValue(numberstack.top());
+                    numberstack.pop();
+                    numberstack.push(QString::number(ch == '+' ? a + b : b - a));
+                }
+                if(symbolstack.top() == '(')symbolstack.pop();
+                else return *ok = false, 0;
+                if(!symbolstack.empty()){
+                    if(symbolstack.top() == '*' || symbolstack.top() == '/'){
+                        QChar ch = symbolstack.top();
+                        if(numberstack.size() < 2)return *ok = false, 0;
+                        int a = getNumStringValue(numberstack.top());
+                        numberstack.pop();
+                        int b = getNumStringValue(numberstack.top());
+                        numberstack.pop();
+                        if(ch == '/' && a == 0)return *ok = false, 0;
+                        numberstack.push(QString::number(ch == '*' ? a * b : b / a));
+                    }
+                }
+
+            }
+            if(expr[i] == '+' || expr[i] == '-'){
+                if(!symbolstack.isEmpty() && symbolstack.top() != '('){
+                    QChar ch = symbolstack.top();
+                    symbolstack.pop();
+                    int a = getNumStringValue(numberstack.top());
+                    numberstack.pop();
+                    int b = getNumStringValue(numberstack.top());
+                    numberstack.push(QString::number(ch == '+' ? a + b : b - a));
+                }
+                else {
+                    symbolstack.push(expr[i]);
+
+                }
+            }
+            if(expr[i] == '*' || expr[i] == '/' || expr[i] == '('){
+                symbolstack.push(expr[i]);
+            }
+        }
+        (*ok) = true;
+        return ans;
     }
 
 

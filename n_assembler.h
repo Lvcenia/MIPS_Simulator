@@ -9,6 +9,7 @@
 #include <QDebug>
 #include <QRegExp>
 #include <QMessageBox>
+#include <QStack>
 #include "Instruction_Base.h"
 
 enum InstrCheckType
