@@ -21,6 +21,7 @@ public:
         qDebug() << "W: "<< W;
         this->number = (this->Q * 94 + this->W);
     }
+    QList<uint16_t> data;
     int Q;
     int W;
     int number;

@@ -50,6 +50,7 @@ public:
     QStringList Assemble(const QString& orig);//返回汇编后的二进制机器码字符串
     QString Deassemble(QStringList inputBinLines);//返回反汇编后的指令字符串
 
+
 signals:
     void initComplete(QHash<QString,QString>);
 

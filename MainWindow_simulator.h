@@ -11,6 +11,7 @@
 #include "mips_vm.h"
 #include "displaywidget.h"
 #include "QStyleFactory"
+#include <QInputDialog>
 
 namespace Ui {
 class Assembler;
@@ -27,9 +28,10 @@ public:
 public slots:
     void OnAsseblerWidgetTextChanged(const QString& curText);
     void OnMemoryDataChanged(int address,uint16_t prevValue,uint16_t curValue);
+    void OnMemoryTextChanged(int address,uint32_t prevValue,uint32_t curValue);
     void OnRegisterValueChanged(int number,QString name,int value);
     void OnCurrentInstrSetChanged(const QString& curInstrs);
-    void OnCurrentInstrLineChanged(int line);
+    void OnCurrentInstrLineChanged(int PC);
 
 private:
     QStringList curInstrSet;
@@ -41,9 +43,11 @@ private:
     DisplayWidget* displayWidget;
     N_Assembler* assembler;
     QStandardItemModel *RegsTableModel;
-    QStandardItemModel *MemoryTableModel;
+    QStandardItemModel *MemoryTableModel_Text;
+    QStandardItemModel *MemoryTableModel_Data;
     QStandardItemModel *InstrsTableModel;
     MIPS_VM* MIPS_VirtualMachine;
+    void initMemoryTables();
 signals:
     void currentInstrSetChanged(const QString& curInstrS);
 
