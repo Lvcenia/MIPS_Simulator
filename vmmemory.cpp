@@ -99,6 +99,10 @@ void vmMemory::SetInstr(unsigned int addressOfs, uint32_t instr)
 
 
 
+}
+
+uint32_t vmMemory::MemoryAlloc(int size)
+{
 
 
 }

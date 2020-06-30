@@ -90,8 +90,26 @@ void vmCPU::ExecInstruction(const QString &Instr)
         PC+=2;
     }
         break;
-    case SLTu:break;
-    case SLTiu:break;
+    case SLTu:
+    {
+
+        QString rd = params[0];
+        QString rs = params[1];
+        QString rt = params[2];
+        RegistersValue[RegDict[rd]] = ((long)RegistersValue[RegDict[rs]] & 0xffffffffl) < ((long)RegistersValue[RegDict[rt]] & 0xffffffffl) ? 1:0;
+        emit registerValueChanged(RegDict[rt],rt,RegistersValue[RegDict[rt]]);
+        PC+=2;
+    }break;
+    case SLTiu:
+    {
+        int dat = params[2].toInt(nullptr,16);
+        QString rt = params[0];
+        QString rs = params[1];
+        RegistersValue[RegDict[rt]] = ((long)RegistersValue[RegDict[rs]] & 0xffffffffl) < ((long)dat & 0xffffffffl) ? 1:0;
+        emit registerValueChanged(RegDict[rt],rt,RegistersValue[RegDict[rt]]);
+        PC+=2;
+    }
+        break;
     case AND:
     {
         QString rd = params[0];
@@ -166,11 +184,50 @@ void vmCPU::ExecInstruction(const QString &Instr)
         emit registerValueChanged(RegDict[rd],rd,RegistersValue[RegDict[rd]]);
         PC+=2;
     }break;
-    case SLLv:break;
-    case SRL:break;
-    case SRLv:break;
-    case SRA:break;
-    case SRAv:break;
+    case SLLv:
+    {
+        QString rd = params[0];
+        QString rs = params[1];
+        QString rt = params[2];
+        RegistersValue[RegDict[rd]] = RegistersValue[RegDict[rs]] <<  RegistersValue[RegDict[rt]];
+        emit registerValueChanged(RegDict[rd],rd,RegistersValue[RegDict[rd]]);
+        PC+=2;
+    }break;
+    case SRL:    {
+        QString rd = params[0];
+        QString rs = params[1];
+        int sa = params[2].toInt(nullptr,16);
+        RegistersValue[RegDict[rd]] = RegistersValue[RegDict[rs]] >> sa;
+        emit registerValueChanged(RegDict[rd],rd,RegistersValue[RegDict[rd]]);
+        PC+=2;
+    }break;
+    case SRLv:
+    {
+        QString rd = params[0];
+        QString rs = params[1];
+        QString rt = params[2];
+        RegistersValue[RegDict[rd]] = RegistersValue[RegDict[rs]] >>  RegistersValue[RegDict[rt]];
+        emit registerValueChanged(RegDict[rd],rd,RegistersValue[RegDict[rd]]);
+        PC+=2;
+    }break;
+    case SRA:
+    {
+            QString rd = params[0];
+            QString rs = params[1];
+            int sa = params[2].toInt(nullptr,16);
+            RegistersValue[RegDict[rd]] = RegistersValue[RegDict[rs]] >> sa;
+            emit registerValueChanged(RegDict[rd],rd,RegistersValue[RegDict[rd]]);
+            PC+=2;
+        }break;
+    case SRAv:
+    {
+        QString rd = params[0];
+        QString rs = params[1];
+        QString rt = params[2];
+        RegistersValue[RegDict[rd]] = RegistersValue[RegDict[rs]] >>  RegistersValue[RegDict[rt]];
+        emit registerValueChanged(RegDict[rd],rd,RegistersValue[RegDict[rd]]);
+        PC+=2;
+    }break;
     case LW:
     {
         short dat = params[1].toShort(nullptr,16);
@@ -193,12 +250,59 @@ void vmCPU::ExecInstruction(const QString &Instr)
         PC+=2;
     }
         break;
-    case LWx:break;
-    case LH:break;
-    case LHx:break;
-    case LHu:break;
-    case LHux:break;
+    case LH:
+    {
+        short dat = params[1].toShort(nullptr,16);
+        QString rt = params[0];
+        QString rs = params[2];
+        qDebug()<< "in lw " << toHex(RegistersValue[RegDict[rs]]+dat);
+        uint32_t address = 0;
+        if(this->currentMode == ZPC)
+        {
+            address = RegistersValue[RegDict[rs]]+dat;
+        }
+        else//标准MIPS
+        {
+            uint32_t base = STATIC_DATA_SEG_START + (RegistersValue[RegDict[rs]] - STATIC_DATA_SEG_START)/2;
+            uint32_t ofs = dat/2;
+            address = base + ofs;
+        }
+        RegistersValue[RegDict[rt]] = this->mem->GetValue(address);
+        emit registerValueChanged(RegDict[rt],rt,RegistersValue[RegDict[rt]]);
+        PC+=2;
+    }break;
+    case LHu:
+    {
+        short dat = params[1].toShort(nullptr,16);
+        QString rt = params[0];
+        QString rs = params[2];
+        qDebug()<< "in lw " << toHex(RegistersValue[RegDict[rs]]+dat);
+        uint32_t address = 0;
+        if(this->currentMode == ZPC)
+        {
+            address = RegistersValue[RegDict[rs]]+dat;
+        }
+        else//标准MIPS
+        {
+            uint32_t base = STATIC_DATA_SEG_START + (RegistersValue[RegDict[rs]] - STATIC_DATA_SEG_START)/2;
+            uint32_t ofs = dat/2;
+            address = base + ofs;
+        }
+        RegistersValue[RegDict[rt]] = (uint32_t)this->mem->GetValue(address);
+        emit registerValueChanged(RegDict[rt],rt,RegistersValue[RegDict[rt]]);
+        PC+=2;
+    }break;
     case SW:
+    {
+        short dat = params[1].toShort(nullptr,16);
+        QString rt = params[0];
+        QString rs = params[2];
+        this->mem->SetWord(RegistersValue[RegDict[rs]]+dat,RegistersValue[RegDict[rt]]);
+        //emit registerValueChanged("$" +RegDict[rt],rt,RegistersValue[RegDict[rt]]);
+        PC+=2;
+    }
+        break;
+    case SH:
     {
         short dat = params[1].toShort(nullptr,16);
         QString rt = params[0];
@@ -206,11 +310,7 @@ void vmCPU::ExecInstruction(const QString &Instr)
         this->mem->SetZjie(RegistersValue[RegDict[rs]]+dat,RegistersValue[RegDict[rt]]);
         //emit registerValueChanged("$" +RegDict[rt],rt,RegistersValue[RegDict[rt]]);
         PC+=2;
-    }
-        break;
-    case SWx:break;
-    case SH:break;
-    case SHx:break;
+    }break;
     case BEQ:
     {
         QString rs = params[0];
@@ -278,11 +378,81 @@ void vmCPU::ExecInstruction(const QString &Instr)
         this->SysCallProcess(RegistersValue[RegDict["$v0"]]);
         PC+=2;
         break;
-    case MUL:break;
-    case MULT:break;
-    case DIV:break;
-    case DIVu:break;
-    case MFHi:break;
+    case MUL:
+    {
+        QString rd = params[0];
+        QString rs = params[1];
+        QString rt = params[2];
+        RegistersValue[RegDict[rd]] =(uint32_t)(RegistersValue[RegDict[rs]] * RegistersValue[RegDict[rt]]);
+        emit registerValueChanged(RegDict[rd],rd,RegistersValue[RegDict[rd]]);
+        PC+=2;
+    }break;
+    case MULT:
+    {
+        QString rs = params[0];
+        QString rt = params[1];
+        this->hi  = (int)(((long)(RegistersValue[RegDict[rs]] * RegistersValue[RegDict[rt]]) >>32)& 0xffffffff);
+        this->lo = (int)(((long)(RegistersValue[RegDict[rs]] * RegistersValue[RegDict[rt]]))& 0xffffffff);
+
+        emit registerValueChanged(RegDict[rs],rs,RegistersValue[RegDict[rs]]);
+        PC+=2;
+    }break;
+    case DIV:
+    {
+        QString rs = params[0];
+        QString rt = params[1];
+        this->lo  = RegistersValue[RegDict[rs]] / RegistersValue[RegDict[rt]];
+        this->hi = RegistersValue[RegDict[rs]] % RegistersValue[RegDict[rt]];
+
+        emit registerValueChanged(RegDict[rs],rs,RegistersValue[RegDict[rs]]);
+        PC+=2;
+    }break;
+    case DIVu:
+    {
+        QString rs = params[0];
+        QString rt = params[1];
+        this->lo  = RegistersValue[RegDict[rs]] / RegistersValue[RegDict[rt]];
+        this->hi = RegistersValue[RegDict[rs]] % RegistersValue[RegDict[rt]];
+
+        emit registerValueChanged(RegDict[rs],rs,RegistersValue[RegDict[rs]]);
+        PC+=2;
+    }break;
+    case MFHi:
+    {
+        QString rd = params[0];
+
+        RegistersValue[RegDict[rd]] = this->hi;
+
+        emit registerValueChanged(RegDict[rd],rd,RegistersValue[RegDict[rd]]);
+        PC+=2;
+    }break;
+    case MTHi:
+    {
+        QString rs = params[0];
+
+        this->hi = RegistersValue[RegDict[rs]];
+
+        //emit registerValueChanged(RegDict[rd],rd,RegistersValue[RegDict[rd]]);
+        PC+=2;
+    }break;
+    case MTLO:
+    {
+        QString rd = params[0];
+
+        RegistersValue[RegDict[rd]] = this->lo;
+
+        emit registerValueChanged(RegDict[rd],rd,RegistersValue[RegDict[rd]]);
+        PC+=2;
+    }break;
+    case SUBu:
+    {
+        QString rd = params[0];
+        QString rs = params[1];
+        QString rt = params[2];
+        RegistersValue[RegDict[rd]] = RegistersValue[RegDict[rs]] < RegistersValue[RegDict[rt]] ? 1:0;
+        emit registerValueChanged(RegDict[rd],rd,RegistersValue[RegDict[rd]]);
+        PC+=2;
+    }break;
     default:break;
     }
 
@@ -434,11 +604,16 @@ void vmCPU::SysCallProcess(int code)
         while(1)
         {
             uint16_t zjie = this->mem->GetValue(add);
+            if(zjie == 0) break;
             char b1,b2;
-
+            b1 = (char)((zjie & 0xff00) >> 2);
+            b2 = (char)(zjie & 0x00ff);
+            data.push_back(b1);
+            data.push_back(b2);
             add++;
         }
-        SystemPrint<QString>(str.fromLocal8Bit());
+        str = str.fromLocal8Bit(data);
+        SystemPrint<QString>(str);
     }
 
         break;

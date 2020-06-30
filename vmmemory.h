@@ -27,6 +27,7 @@ public:
     void SetWord(unsigned int addressOfs,uint32_t word);
     void SetDword(unsigned int addressOfs,uint64_t dword);
     void SetInstr(unsigned int addressOfs,uint32_t instr);
+    uint32_t MemoryAlloc(int size);
 
 
     //

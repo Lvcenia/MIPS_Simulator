@@ -66,7 +66,6 @@
    <addaction name="actionOpenAssembler"/>
    <addaction name="actionSysExec"/>
    <addaction name="actionStepInto"/>
-   <addaction name="actionOpenDisplay"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <widget class="QDockWidget" name="dockWidget_3">
@@ -176,7 +175,7 @@
         <item>
          <widget class="QLabel" name="labelPC">
           <property name="text">
-           <string>TextLabel</string>
+           <string>PC: </string>
           </property>
          </widget>
         </item>

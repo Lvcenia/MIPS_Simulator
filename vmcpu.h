@@ -109,6 +109,8 @@ private:
     uint32_t StoreInputString(const QString& str);
     QString toHex(int num);
     InstrMode currentMode = StandardMIPS;
+    int lo;
+    int hi;
 
 
 
